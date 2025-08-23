@@ -20,12 +20,12 @@ public class CategoriaProduto
 
     public CategoriaProduto() { }
 
-    public CategoriaProduto(int id, string nome, bool status, int empresaId)
+    public CategoriaProduto(int id, string nome, int empresaId)
     {
         Id = id;
         Guid = Guid.NewGuid();
         Nome = nome;
-        Status = status;
+        Status = true;
         EmpresaId = empresaId;
     }
 }

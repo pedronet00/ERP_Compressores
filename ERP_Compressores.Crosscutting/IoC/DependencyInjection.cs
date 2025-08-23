@@ -14,10 +14,12 @@ public static class DependencyInjection
         // Repositories
         services.AddScoped<IEmpresasRepository, EmpresasRepository>();
         services.AddScoped<IFornecedoresRepository, FornecedoresRepository>();
+        services.AddScoped<ICategoriaProdutoRepository, CategoriaProdutoRepository>();
 
         //Services
         services.AddScoped<IEmpresasService, EmpresasService>();
         services.AddScoped<IFornecedoresService, FornecedoresService>();
+        services.AddScoped<ICategoriaProdutoService, CategoriaProdutoService>();
 
         //Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();

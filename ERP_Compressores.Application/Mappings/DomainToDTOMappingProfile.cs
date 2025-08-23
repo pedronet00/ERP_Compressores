@@ -18,6 +18,10 @@ public class DomainToDTOMappingProfile : Profile
         CreateMap<FornecedorDTO, Fornecedores>().ForMember(dest => dest.Guid, opt => opt.Ignore());
         CreateMap<Fornecedores, FornecedorViewModel>().ReverseMap();
 
+        CreateMap<CategoriaProduto, CategoriaProdutoDTO>().ReverseMap();
+        CreateMap<CategoriaProdutoDTO, CategoriaProduto>().ForMember(dest => dest.Guid, opt => opt.Ignore());
+        CreateMap<CategoriaProduto, CategoriaProdutoViewModel>().ReverseMap();
+
 
         //CreateMap<Produtos, ProdutoDTO>();
         //CreateMap<Clientes, ClienteDTO>();
