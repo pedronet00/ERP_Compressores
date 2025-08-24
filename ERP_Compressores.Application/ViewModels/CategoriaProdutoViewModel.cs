@@ -12,7 +12,7 @@ public class CategoriaProdutoViewModel
 
     public Guid Guid { get; set; }
 
-    public string Nome { get; set; }
+    public string? Nome { get; set; }
 
     public bool Status { get; set; }
 

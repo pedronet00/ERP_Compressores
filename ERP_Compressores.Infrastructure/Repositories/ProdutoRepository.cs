@@ -86,11 +86,6 @@ public class ProdutoRepository : IProdutoRepository
         if (produto is null)
             throw new ArgumentNullException(nameof(produto), "Produto não pode ser nulo!");
 
-        var existingProduto = await GetProdutoByIdAsync(produto.Id);
-
-        if (existingProduto is null)
-            throw new KeyNotFoundException($"Produto não encontrado.");
-
         _context.Produtos.Update(produto);
 
         return produto;

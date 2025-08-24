@@ -2,11 +2,6 @@
 using ERP_Compressores.Domain.Interfaces;
 using ERP_Compressores.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ERP_Compressores.Infrastructure.Repositories;
 
