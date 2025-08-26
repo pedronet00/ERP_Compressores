@@ -29,6 +29,9 @@ public static class DependencyInjection
         //AutoMapper
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+        // Token
+        services.AddScoped<ITokenService, TokenService>();
+
         return services;
     }
 }

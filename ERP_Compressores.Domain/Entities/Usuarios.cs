@@ -10,6 +10,10 @@ public class Usuarios : IdentityUser
     public bool Status { get; set; }
     public Empresas Empresa { get; set; }
 
+    // Token
+    public string? RefreshToken { get; set; }
+    public DateTime RefreshTokenExpiryTime { get; set; }
+
     public Usuarios() { }
     public Usuarios(int empresaId, string cpf)
     {
