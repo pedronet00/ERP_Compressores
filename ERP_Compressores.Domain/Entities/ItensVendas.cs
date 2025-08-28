@@ -1,10 +1,14 @@
-﻿namespace ERP_Compressores.Domain.Entities;
+﻿using System.Text.Json.Serialization;
+
+namespace ERP_Compressores.Domain.Entities;
 
 public class ItensVendas
 {
     public int Id { get; private set; }
     public Guid Guid { get; private set; }
     public int VendaId { get; private set; }
+
+    [JsonIgnore]
     public Vendas Venda { get; private set; }
     public int ProdutoId { get; private set; }
     public Produtos Produto { get; private set; }
