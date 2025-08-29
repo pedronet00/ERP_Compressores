@@ -15,10 +15,10 @@ public class FornecedoresRepository : IFornecedoresRepository
         _context = context;
     }
 
-    public async Task<bool> ActivateFornecedor(Fornecedores fornecedor)
+    public async Task<bool> ActivateFornecedor(int empresaId, Fornecedores fornecedor)
     {
-        if(fornecedor is null)
-            throw new ArgumentNullException("Fornecedor não pode ser nulo");
+        if(fornecedor is null || fornecedor.EmpresaId != empresaId)
+            throw new KeyNotFoundException("Fornecedor não existe");
 
         fornecedor.Status = true;
         _context.Fornecedores.Update(fornecedor);
@@ -36,10 +36,10 @@ public class FornecedoresRepository : IFornecedoresRepository
         return fornecedor;
     }
 
-    public async Task<bool> DeactivateFornecedor(Fornecedores fornecedor)
+    public async Task<bool> DeactivateFornecedor(int empresaId, Fornecedores fornecedor)
     {
-        if (fornecedor is null)
-            throw new ArgumentNullException("Fornecedor não pode ser nulo");
+        if (fornecedor is null || fornecedor.EmpresaId != empresaId)
+            throw new KeyNotFoundException("Fornecedor não existe");
 
         fornecedor.Status = false;
         _context.Fornecedores.Update(fornecedor);
@@ -47,38 +47,38 @@ public class FornecedoresRepository : IFornecedoresRepository
         return true;
     }
 
-    public async Task<bool> DeleteFornecedorAsync(int id)
+    public async Task<bool> DeleteFornecedorAsync(int empresaId, int id)
     {
         
-        var fornecedor = await GetFornecedorByIdAsync(id);
+        var fornecedor = await GetFornecedorByIdAsync(empresaId, id);
 
         if (fornecedor is null)
-            throw new ArgumentNullException("Fornecedor não encontrado");
+            throw new KeyNotFoundException("Fornecedor não encontrado");
 
         _context.Fornecedores.Remove(fornecedor);
         
         return true;
     }
 
-    public async Task<IEnumerable<Fornecedores>> GetAllFornecedoresAsync()
+    public async Task<IEnumerable<Fornecedores>> GetAllFornecedoresAsync(int empresaId)
     {
 
-        var fornecedores = await _context.Fornecedores.AsNoTracking().ToListAsync();
+        var fornecedores = await _context.Fornecedores.Where(c => c.EmpresaId == empresaId).AsNoTracking().ToListAsync();
 
         return fornecedores;
     }
 
-    public async Task<Fornecedores> GetFornecedorByIdAsync(int id)
+    public async Task<Fornecedores> GetFornecedorByIdAsync(int empresaId, int id)
     {
-        var fornecedor = await _context.Fornecedores.FirstOrDefaultAsync(f => f.Id == id);
+        var fornecedor = await _context.Fornecedores.FirstOrDefaultAsync(f => f.Id == id && f.EmpresaId == empresaId);
 
         return fornecedor;
     }
 
-    public async Task<Fornecedores> UpdateFornecedorAsync(Fornecedores fornecedor)
+    public async Task<Fornecedores> UpdateFornecedorAsync(int empresaId, Fornecedores fornecedor)
     {
-        if (fornecedor is null)
-            throw new ArgumentNullException("Fornecedor não pode ser nulo");
+        if (fornecedor is null || fornecedor.EmpresaId != empresaId)
+            throw new KeyNotFoundException("Fornecedor não encontrado");
         
         _context.Fornecedores.Update(fornecedor);
         

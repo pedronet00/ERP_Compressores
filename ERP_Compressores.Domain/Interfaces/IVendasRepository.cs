@@ -1,4 +1,5 @@
 ﻿using ERP_Compressores.Domain.Entities;
+using ERP_Compressores.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,6 @@ public interface IVendasRepository
     Task<IEnumerable<Vendas>> ListarAsync();
 
     Task<int> CountVendas();
+    Task<List<VendasPorMes>> ObterVendasAgrupadasPorMesAsync();
 
 }

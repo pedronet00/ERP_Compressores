@@ -17,22 +17,26 @@ public class ClientesService : IClientesService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IClientesRepository _repo;
+    private readonly IUserContextService _userContext;
 
-    public ClientesService(IUnitOfWork unitOfWork, IMapper mapper, IClientesRepository repo)
+
+    public ClientesService(IUnitOfWork unitOfWork, IMapper mapper, IClientesRepository repo, IUserContextService userContext)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _repo = repo;
+        _userContext = userContext;
     }
 
     public async Task<ClienteViewModel> ActivateCliente(int id)
     {
-        var cliente = await _repo.GetClienteByIdAsync(id);
+        var empresaId = _userContext.GetEmpresaId();
+        var cliente = await _repo.GetClienteByIdAsync(empresaId, id);
 
         if (cliente.Status is true)
             throw new Exception("Cliente já ativo ou não encontrado.");
 
-        await _repo.ActivateCliente(cliente);
+        await _repo.ActivateCliente(empresaId,cliente);
 
         await _unitOfWork.Commit();
 
@@ -55,17 +59,19 @@ public class ClientesService : IClientesService
 
     public async Task<int> CountClientes()
     {
-        return await _repo.CountClientes();
+        var empresaId = _userContext.GetEmpresaId();
+        return await _repo.CountClientes(empresaId);
     }
 
     public async Task<ClienteViewModel> DeactivateCliente(int id)
     {
-        var cliente = await _repo.GetClienteByIdAsync(id);
+        var empresaId = _userContext.GetEmpresaId();
+        var cliente = await _repo.GetClienteByIdAsync(empresaId,id);
 
         if (cliente.Status is false)
             throw new Exception("Cliente já inativo ou não encontrado.");
 
-        await _repo.DeactivateCliente(cliente);
+        await _repo.DeactivateCliente(empresaId,cliente);
 
         await _unitOfWork.Commit();
 
@@ -74,13 +80,13 @@ public class ClientesService : IClientesService
 
     public async Task<bool> DeleteClienteAsync(int id)
     {
-        
-        var cliente = await _repo.GetClienteByIdAsync(id);
+        var empresaId = _userContext.GetEmpresaId();
+        var cliente = await _repo.GetClienteByIdAsync(empresaId,id);
         
         if (cliente is null)
             throw new Exception("Cliente não encontrado.");
         
-        var result = await _repo.DeleteClienteAsync(id);
+        var result = await _repo.DeleteClienteAsync(empresaId,id);
         
         if (!result)
             throw new Exception("Erro ao deletar o cliente.");
@@ -92,27 +98,30 @@ public class ClientesService : IClientesService
 
     public async Task<IEnumerable<ClienteViewModel>> GetAllClientesAsync()
     {
-        var clientes = await _repo.GetAllClientesAsync();
+        var empresaId = _userContext.GetEmpresaId();
+        var clientes = await _repo.GetAllClientesAsync(empresaId);
 
         return _mapper.Map<IEnumerable<ClienteViewModel>>(clientes);
     }
 
     public async Task<ClienteViewModel> GetClienteByIdAsync(int id)
     {
-        var cliente = await _repo.GetClienteByIdAsync(id);
+        var empresaId = _userContext.GetEmpresaId();
+        var cliente = await _repo.GetClienteByIdAsync(empresaId,id);
 
         return _mapper.Map<ClienteViewModel>(cliente);
     }
 
     public async Task<ClienteViewModel> UpdateClienteAsync(ClienteDTO cliente)
     {
-        
+        var empresaId = _userContext.GetEmpresaId();
+
         if (cliente.Id is <= 0)
             throw new Exception("Dados do cliente não informados.");
 
         var clienteEntity = _mapper.Map<Domain.Entities.Clientes>(cliente);
         
-        var clienteAtualizado = await _repo.UpdateClienteAsync(clienteEntity);
+        var clienteAtualizado = await _repo.UpdateClienteAsync(empresaId,clienteEntity);
         
         await _unitOfWork.Commit();
         

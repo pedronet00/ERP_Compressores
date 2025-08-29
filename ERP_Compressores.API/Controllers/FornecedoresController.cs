@@ -1,5 +1,6 @@
 ﻿using ERP_Compressores.Application.DTOs;
 using ERP_Compressores.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,7 @@ public class FornecedoresController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAllFornecedores()
     {
         var fornecedores = await _service.GetAllFornecedoresAsync();
@@ -24,6 +26,7 @@ public class FornecedoresController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetFornecedorById(int id)
     {
         var fornecedor = await _service.GetFornecedorByIdAsync(id);
@@ -33,6 +36,7 @@ public class FornecedoresController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddFornecedor([FromBody] FornecedorDTO fornecedor)
     {
         if (!ModelState.IsValid)
@@ -42,6 +46,7 @@ public class FornecedoresController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> UpdateFornecedor(int id, [FromBody] FornecedorDTO fornecedor)
     {
         if (!ModelState.IsValid)
@@ -53,6 +58,7 @@ public class FornecedoresController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteFornecedor(int id)
     {
         var result = await _service.DeleteFornecedorAsync(id);
@@ -62,6 +68,7 @@ public class FornecedoresController : ControllerBase
     }
 
     [HttpPatch("deactivate/{id}")]
+    [Authorize]
     public async Task<IActionResult> DeactivateFornecedor(int id)
     {
         var fornecedor = await _service.DeactivateFornecedor(id);
@@ -73,6 +80,7 @@ public class FornecedoresController : ControllerBase
     }
 
     [HttpPatch("activate/{id}")]
+    [Authorize]
     public async Task<IActionResult> ActivateFornecedor(int id)
     {
         var fornecedor = await _service.ActivateFornecedor(id);

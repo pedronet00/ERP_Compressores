@@ -1,5 +1,6 @@
 ﻿using ERP_Compressores.Application.DTOs;
 using ERP_Compressores.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,7 @@ public class ClientesController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAllClientes()
     {
         var clientes = await _service.GetAllClientesAsync();
@@ -24,6 +26,7 @@ public class ClientesController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetClienteById(int id)
     {
         var cliente = await _service.GetClienteByIdAsync(id);
@@ -33,6 +36,7 @@ public class ClientesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> AddCliente([FromBody] ClienteDTO cliente)
     {
         if (cliente == null)
@@ -42,6 +46,7 @@ public class ClientesController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> UpdateCliente(int id, [FromBody] ClienteDTO cliente)
     {
         if (cliente == null || id != cliente.Id)
@@ -51,6 +56,7 @@ public class ClientesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteCliente(int id)
     {
         var result = await _service.DeleteClienteAsync(id);
@@ -60,6 +66,7 @@ public class ClientesController : ControllerBase
     }
 
     [HttpPatch("deactivate/{id}")]
+    [Authorize]
     public async Task<IActionResult> DeactivateCliente(int id)
     {
         var deactivatedCliente = await _service.DeactivateCliente(id);
@@ -67,6 +74,7 @@ public class ClientesController : ControllerBase
     }
 
     [HttpPatch("activate/{id}")]
+    [Authorize]
     public async Task<IActionResult> ActivateCliente(int id)
     {
         var activatedCliente = await _service.ActivateCliente(id);
@@ -74,6 +82,7 @@ public class ClientesController : ControllerBase
     }
 
     [HttpGet("count")]
+    [Authorize]
     public async Task<IActionResult> CountClientes()
     {
         var count = await _service.CountClientes();
