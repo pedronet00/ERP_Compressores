@@ -31,12 +31,23 @@ public class DashboardService : IDashboardService
         var totalClientes = await _clienteRepository.CountClientes(empresaId);
         var vendasPorMes = await _vendaRepository.ObterVendasAgrupadasPorMesAsync();
 
+        // Garantir todos os meses do ano
+        var anoAtual = DateTime.Now.Year;
+        var todosMeses = Enumerable.Range(1, 12)
+            .Select(m => new
+            {
+                Ano = anoAtual,
+                Mes = m,
+                ValorTotal = vendasPorMes.FirstOrDefault(v => v.Mes == m && v.Ano == anoAtual)?.ValorTotal ?? 0
+            })
+            .ToList();
+
         return new DashboardViewModel
         {
             TotalVendas = totalVendas,
             TotalClientes = totalClientes,
-            ValorVendasMesAtual = vendasPorMes.FirstOrDefault(m => m.Mes == DateTime.Now.Month)?.ValorTotal ?? 0,
-            VendasPorMes = vendasPorMes.Select(v => new VendasPorMesViewModel
+            ValorVendasMesAtual = todosMeses.First(m => m.Mes == DateTime.Now.Month).ValorTotal,
+            VendasPorMes = todosMeses.Select(v => new VendasPorMesViewModel
             {
                 Ano = v.Ano,
                 Mes = v.Mes,
@@ -44,5 +55,6 @@ public class DashboardService : IDashboardService
             }).ToList()
         };
     }
+
 
 }

@@ -89,6 +89,7 @@ public class AuthController : ControllerBase
 
         Usuarios user = new()
         {
+            Guid = Guid.NewGuid(),
             UserName = registerDTO.UserName,
             Email = registerDTO.Email,
             SecurityStamp = Guid.NewGuid().ToString(),

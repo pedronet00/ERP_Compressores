@@ -19,6 +19,7 @@ public static class DependencyInjection
         services.AddScoped<IClientesRepository, ClientesRepository>();
         services.AddScoped<IVendasRepository, VendasRepository>();
         services.AddScoped<IItensVendasRepository, ItensVendasRepository>();
+        services.AddScoped<IUsuariosRepository, UsuariosRepository>();
 
         //Services
         services.AddScoped<IEmpresasService, EmpresasService>();
@@ -29,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IVendasService, VendasService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IUserContextService, UserContextService>();
+        services.AddScoped<IUsuarioService, UsuarioService>();
 
         //Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
