@@ -61,6 +61,13 @@ public class VendasRepository : IVendasRepository
         .ToListAsync();
     }
 
+    public async Task<List<Vendas>> ObterVendasCliente(int idCliente)
+    {
+        var vendas = await _context.Vendas.Where(c => c.ClienteId == idCliente).ToListAsync();
+
+        return vendas;
+    }
+
     Task IVendasRepository.AdicionarAsync(Vendas venda)
     {
         return AdicionarAsync(venda);

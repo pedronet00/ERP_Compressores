@@ -2,12 +2,8 @@
 using ERP_Compressores.Application.DTOs;
 using ERP_Compressores.Application.Interfaces;
 using ERP_Compressores.Application.ViewModels;
+using ERP_Compressores.Domain.Enums;
 using ERP_Compressores.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ERP_Compressores.Application.Services;
 
@@ -17,15 +13,17 @@ public class ClientesService : IClientesService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IClientesRepository _repo;
+    private readonly IVendasRepository _vendasRepository;
     private readonly IUserContextService _userContext;
 
 
-    public ClientesService(IUnitOfWork unitOfWork, IMapper mapper, IClientesRepository repo, IUserContextService userContext)
+    public ClientesService(IUnitOfWork unitOfWork, IMapper mapper, IClientesRepository repo, IUserContextService userContext, IVendasRepository vendasRepository)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _repo = repo;
         _userContext = userContext;
+        _vendasRepository = vendasRepository;
     }
 
     public async Task<ClienteViewModel> ActivateCliente(int id)
@@ -71,6 +69,15 @@ public class ClientesService : IClientesService
         if (cliente.Status is false)
             throw new Exception("Cliente já inativo ou não encontrado.");
 
+        var vendas = await _vendasRepository.ObterVendasCliente(id);
+
+        var verificarVendaPendenteDoCliente = vendas
+            .Where(c => c.ClienteId == id && c.Status == StatusVendasEnum.Pendente)
+            .ToList();
+
+        if (verificarVendaPendenteDoCliente.Any())
+            throw new Exception("Existem vendas pendentes para esse cliente.");
+
         await _repo.DeactivateCliente(empresaId,cliente);
 
         await _unitOfWork.Commit();
@@ -85,7 +92,16 @@ public class ClientesService : IClientesService
         
         if (cliente is null)
             throw new Exception("Cliente não encontrado.");
-        
+
+        var vendas = await _vendasRepository.ObterVendasCliente(id);
+
+        var verificarVendaPendenteDoCliente = vendas
+            .Where(c => c.ClienteId == id && c.Status == StatusVendasEnum.Pendente)
+            .ToList();
+
+        if (verificarVendaPendenteDoCliente.Any())
+            throw new Exception("Existem vendas pendentes para esse cliente.");
+
         var result = await _repo.DeleteClienteAsync(empresaId,id);
         
         if (!result)

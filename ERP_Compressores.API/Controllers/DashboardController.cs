@@ -1,5 +1,6 @@
 ﻿using ERP_Compressores.Application.Interfaces;
 using ERP_Compressores.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,7 @@ public class DashboardController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> Get()
     {
         var dashboard = await _service.ObterDashboardAsync();

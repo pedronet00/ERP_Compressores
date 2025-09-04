@@ -17,4 +17,6 @@ public interface IVendasRepository
     Task<int> CountVendas();
     Task<List<VendasPorMes>> ObterVendasAgrupadasPorMesAsync();
 
+    Task<List<Vendas>> ObterVendasCliente(int idCliente);
+
 }

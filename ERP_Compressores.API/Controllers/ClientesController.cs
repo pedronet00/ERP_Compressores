@@ -59,18 +59,35 @@ public class ClientesController : ControllerBase
     [Authorize]
     public async Task<IActionResult> DeleteCliente(int id)
     {
-        var result = await _service.DeleteClienteAsync(id);
-        if (!result)
-            return NotFound();
-        return NoContent();
+        try
+        {
+            var result = await _service.DeleteClienteAsync(id);
+
+            if (!result)
+                return NotFound();
+
+            return NoContent();
+        } catch(Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        
+        
     }
 
     [HttpPatch("deactivate/{id}")]
     [Authorize]
     public async Task<IActionResult> DeactivateCliente(int id)
     {
-        var deactivatedCliente = await _service.DeactivateCliente(id);
-        return Ok(deactivatedCliente);
+        try
+        {
+            var deactivatedCliente = await _service.DeactivateCliente(id);
+            return Ok(deactivatedCliente);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPatch("activate/{id}")]
