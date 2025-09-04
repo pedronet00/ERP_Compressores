@@ -22,9 +22,6 @@ public class ClientesRepository : IClientesRepository
 
     public async Task<bool> ActivateCliente(int empresaId, Clientes cliente)
     {
-        if (cliente.EmpresaId != empresaId)
-            throw new KeyNotFoundException("Cliente não encontrado para a empresa informada.");
-
         cliente.Status = true;
 
         _context.Clientes.Update(cliente);
@@ -34,9 +31,6 @@ public class ClientesRepository : IClientesRepository
 
     public async Task<Clientes> AddClienteAsync(Clientes cliente)
     {
-        if (cliente is null)
-            throw new ArgumentNullException(nameof(cliente), "Cliente não pode ser nulo!");
-
         await _context.Clientes.AddAsync(cliente);
 
         return cliente;
@@ -49,9 +43,6 @@ public class ClientesRepository : IClientesRepository
 
     public async Task<bool> DeactivateCliente(int empresaId, Clientes cliente)
     {
-        if (cliente.EmpresaId != empresaId)
-            throw new KeyNotFoundException("Cliente não encontrado para a empresa informada.");
-
         cliente.Status = false;
 
         _context.Clientes.Update(cliente);
@@ -62,9 +53,6 @@ public class ClientesRepository : IClientesRepository
     public async Task<bool> DeleteClienteAsync(int empresaId, int id)
     {
         var cliente = await GetClienteByIdAsync(empresaId, id);
-
-        if (cliente is null || cliente.EmpresaId != empresaId)
-            throw new KeyNotFoundException($"Cliente não encontrado.");
 
         _context.Clientes.Remove(cliente);
 
@@ -89,9 +77,6 @@ public class ClientesRepository : IClientesRepository
 
     public async Task<Clientes> UpdateClienteAsync(int empresaId, Clientes cliente)
     {
-        if (cliente is null || cliente.EmpresaId != empresaId)
-            throw new KeyNotFoundException("Cliente não existe!");
-        
         _context.Clientes.Update(cliente);
         
         return cliente;

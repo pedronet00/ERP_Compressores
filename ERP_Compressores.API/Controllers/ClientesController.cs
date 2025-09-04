@@ -42,7 +42,7 @@ public class ClientesController : ControllerBase
         if (cliente == null)
             return BadRequest("Dados do cliente não informados.");
         var novoCliente = await _service.AddClienteAsync(cliente);
-        return CreatedAtAction(nameof(GetClienteById), new { id = novoCliente.Id }, novoCliente);
+        return Ok(novoCliente);
     }
 
     [HttpPut("{id}")]
@@ -62,9 +62,6 @@ public class ClientesController : ControllerBase
         try
         {
             var result = await _service.DeleteClienteAsync(id);
-
-            if (!result)
-                return NotFound();
 
             return NoContent();
         } catch(Exception ex)

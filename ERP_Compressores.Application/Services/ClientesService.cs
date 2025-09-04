@@ -4,6 +4,7 @@ using ERP_Compressores.Application.Interfaces;
 using ERP_Compressores.Application.ViewModels;
 using ERP_Compressores.Domain.Enums;
 using ERP_Compressores.Domain.Interfaces;
+using ERP_Compressores.Domain.Notifications;
 
 namespace ERP_Compressores.Application.Services;
 
@@ -26,33 +27,47 @@ public class ClientesService : IClientesService
         _vendasRepository = vendasRepository;
     }
 
-    public async Task<ClienteViewModel> ActivateCliente(int id)
+    public async Task<DomainNotificationsResult<ClienteViewModel>> ActivateCliente(int id)
     {
-        var empresaId = _userContext.GetEmpresaId();
-        var cliente = await _repo.GetClienteByIdAsync(empresaId, id);
+        var resultNotifications = new DomainNotificationsResult<ClienteViewModel>();
 
-        if (cliente.Status is true)
-            throw new Exception("Cliente já ativo ou não encontrado.");
+         var empresaId = _userContext.GetEmpresaId();
+         var cliente = await _repo.GetClienteByIdAsync(empresaId, id);
 
-        await _repo.ActivateCliente(empresaId,cliente);
+         if (cliente.Status is true)
+         {
+            resultNotifications.Notifications.Add("Usuário já está ativo.");
+            return resultNotifications;
+         }
 
-        await _unitOfWork.Commit();
+         await _repo.ActivateCliente(empresaId, cliente);
 
-        return _mapper.Map<ClienteViewModel>(cliente);
+         await _unitOfWork.Commit();
+
+         resultNotifications.Result = _mapper.Map<ClienteViewModel>(cliente);
+        
+         return resultNotifications;
     }
 
-    public async Task<ClienteViewModel> AddClienteAsync(ClienteDTO cliente)
+    public async Task<DomainNotificationsResult<ClienteViewModel>> AddClienteAsync(ClienteDTO cliente)
     {
-        if (cliente is null)
-            throw new Exception("Dados do cliente não informados.");
+        var resultNotifications = new DomainNotificationsResult<ClienteViewModel>();
 
+        if (cliente is null)
+        {
+            resultNotifications.Notifications.Add("Dados do cliente não encontrados.");
+            return resultNotifications;
+        }
+                
         var clienteEntity = _mapper.Map<Domain.Entities.Clientes>(cliente);
 
         var novoCliente = await _repo.AddClienteAsync(clienteEntity);
 
         await _unitOfWork.Commit();
 
-        return _mapper.Map<ClienteViewModel>(novoCliente);
+        resultNotifications.Result = _mapper.Map<ClienteViewModel>(cliente);
+        
+        return resultNotifications;
     }
 
     public async Task<int> CountClientes()
@@ -61,54 +76,64 @@ public class ClientesService : IClientesService
         return await _repo.CountClientes(empresaId);
     }
 
-    public async Task<ClienteViewModel> DeactivateCliente(int id)
+    public async Task<DomainNotificationsResult<ClienteViewModel>> DeactivateCliente(int id)
     {
+        var resultNotifications = new DomainNotificationsResult<ClienteViewModel>();
+
         var empresaId = _userContext.GetEmpresaId();
-        var cliente = await _repo.GetClienteByIdAsync(empresaId,id);
+        var cliente = await _repo.GetClienteByIdAsync(empresaId, id);
 
         if (cliente.Status is false)
-            throw new Exception("Cliente já inativo ou não encontrado.");
+        {
+            resultNotifications.Notifications.Add("Usuário já está inativo.");
+            return resultNotifications;
+        }
 
         var vendas = await _vendasRepository.ObterVendasCliente(id);
+        if (vendas.Any(c => c.ClienteId == id && c.Status == StatusVendasEnum.Pendente))
+        {
+            resultNotifications.Notifications.Add("Existem vendas pendentes para esse cliente.");
+            return resultNotifications;
+        }
 
-        var verificarVendaPendenteDoCliente = vendas
-            .Where(c => c.ClienteId == id && c.Status == StatusVendasEnum.Pendente)
-            .ToList();
-
-        if (verificarVendaPendenteDoCliente.Any())
-            throw new Exception("Existem vendas pendentes para esse cliente.");
-
-        await _repo.DeactivateCliente(empresaId,cliente);
+        await _repo.DeactivateCliente(empresaId, cliente);
 
         await _unitOfWork.Commit();
 
-        return _mapper.Map<ClienteViewModel>(cliente);
+        resultNotifications.Result = _mapper.Map<ClienteViewModel>(cliente);
+        
+        return resultNotifications;
     }
 
-    public async Task<bool> DeleteClienteAsync(int id)
+    public async Task<DomainNotificationsResult<ClienteViewModel>> DeleteClienteAsync(int id)
     {
+        var result = new DomainNotificationsResult<ClienteViewModel>();
         var empresaId = _userContext.GetEmpresaId();
-        var cliente = await _repo.GetClienteByIdAsync(empresaId,id);
-        
+        var cliente = await _repo.GetClienteByIdAsync(empresaId, id);
+
         if (cliente is null)
-            throw new Exception("Cliente não encontrado.");
+        {
+            result.Add("Cliente não encontrado.");
+            return result;
+        }
 
         var vendas = await _vendasRepository.ObterVendasCliente(id);
+        if (vendas.Any(c => c.ClienteId == id && c.Status == StatusVendasEnum.Pendente))
+        {
+            result.Add("Existem vendas pendentes para esse cliente.");
+            return result;
+        }
 
-        var verificarVendaPendenteDoCliente = vendas
-            .Where(c => c.ClienteId == id && c.Status == StatusVendasEnum.Pendente)
-            .ToList();
+        var sucesso = await _repo.DeleteClienteAsync(empresaId, id);
+        if (!sucesso)
+        {
+            result.Add("Erro ao deletar o cliente.");
+            return result;
+        }
 
-        if (verificarVendaPendenteDoCliente.Any())
-            throw new Exception("Existem vendas pendentes para esse cliente.");
-
-        var result = await _repo.DeleteClienteAsync(empresaId,id);
-        
-        if (!result)
-            throw new Exception("Erro ao deletar o cliente.");
-        
         await _unitOfWork.Commit();
-        
+        result.Result = _mapper.Map<ClienteViewModel>(cliente);
+
         return result;
     }
 
@@ -120,20 +145,33 @@ public class ClientesService : IClientesService
         return _mapper.Map<IEnumerable<ClienteViewModel>>(clientes);
     }
 
-    public async Task<ClienteViewModel> GetClienteByIdAsync(int id)
+    public async Task<DomainNotificationsResult<ClienteViewModel>> GetClienteByIdAsync(int id)
     {
+        var resultNotification = new DomainNotificationsResult<ClienteViewModel>();
         var empresaId = _userContext.GetEmpresaId();
         var cliente = await _repo.GetClienteByIdAsync(empresaId,id);
 
-        return _mapper.Map<ClienteViewModel>(cliente);
+        if(cliente is null)
+        {
+            resultNotification.Notifications.Add("Cliente não encontrado");
+        }
+
+        resultNotification.Result = _mapper.Map<ClienteViewModel>(cliente);
+
+        return resultNotification;
     }
 
-    public async Task<ClienteViewModel> UpdateClienteAsync(ClienteDTO cliente)
+    public async Task<DomainNotificationsResult<ClienteViewModel>> UpdateClienteAsync(ClienteDTO cliente)
     {
+        var resultNotification = new DomainNotificationsResult<ClienteViewModel>();
         var empresaId = _userContext.GetEmpresaId();
 
         if (cliente.Id is <= 0)
-            throw new Exception("Dados do cliente não informados.");
+        {
+            resultNotification.Notifications.Add("Cliente não encontrado.");
+
+            return resultNotification;
+        }
 
         var clienteEntity = _mapper.Map<Domain.Entities.Clientes>(cliente);
         
@@ -141,6 +179,8 @@ public class ClientesService : IClientesService
         
         await _unitOfWork.Commit();
         
-        return _mapper.Map<ClienteViewModel>(clienteAtualizado);
+        resultNotification.Result = _mapper.Map<ClienteViewModel>(clienteAtualizado);
+
+        return resultNotification;
     }
 }
