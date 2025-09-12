@@ -58,7 +58,16 @@ public class ClientesService : IClientesService
             resultNotifications.Notifications.Add("Dados do cliente não encontrados.");
             return resultNotifications;
         }
-                
+
+        if (await _repo.ExistsByEmailAsync(cliente.EmpresaId, cliente.Email!))
+            resultNotifications.Notifications.Add("Já existe cliente com este email.");
+
+        if (await _repo.ExistsByCpfAsync(cliente.EmpresaId, cliente.Cpf!))
+            resultNotifications.Notifications.Add("Já existe cliente com este CPF.");
+
+        if (resultNotifications.Notifications.Any())
+            return resultNotifications;
+
         var clienteEntity = _mapper.Map<Domain.Entities.Clientes>(cliente);
 
         var novoCliente = await _repo.AddClienteAsync(clienteEntity);
@@ -167,11 +176,16 @@ public class ClientesService : IClientesService
         var empresaId = _userContext.GetEmpresaId();
 
         if (cliente.Id is <= 0)
-        {
             resultNotification.Notifications.Add("Cliente não encontrado.");
 
+        if (await _repo.ExistsByEmailAsync(cliente.EmpresaId, cliente.Email!))
+            resultNotification.Notifications.Add("Já existe cliente com este email.");
+
+        if (await _repo.ExistsByCpfAsync(cliente.EmpresaId, cliente.Cpf!))
+            resultNotification.Notifications.Add("Já existe cliente com este CPF.");
+
+        if (resultNotification.Notifications.Any())
             return resultNotification;
-        }
 
         var clienteEntity = _mapper.Map<Domain.Entities.Clientes>(cliente);
         

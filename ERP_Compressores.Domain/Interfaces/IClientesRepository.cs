@@ -24,4 +24,8 @@ public interface IClientesRepository
     Task<bool> ActivateCliente(int empresaId, Clientes cliente);
 
     Task<int> CountClientes(int empresaId);
+
+    // Validações
+    Task<bool> ExistsByEmailAsync(int empresaId, string email);
+    Task<bool> ExistsByCpfAsync(int empresaId, string cpf);
 }

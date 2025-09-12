@@ -59,6 +59,18 @@ public class ClientesRepository : IClientesRepository
         return true;
     }
 
+    public async Task<bool> ExistsByCpfAsync(int empresaId, string cpf)
+    {
+        return await _context.Clientes
+            .AnyAsync(c => c.EmpresaId == empresaId && c.Cpf == cpf);
+    }
+
+    public async Task<bool> ExistsByEmailAsync(int empresaId, string email)
+    {
+        return await _context.Clientes
+            .AnyAsync(c => c.EmpresaId == empresaId && c.Email == email.ToLower());
+    }
+
     public async Task<IEnumerable<Clientes>> GetAllClientesAsync(int empresaId)
     {
         var clientes = await _context.Clientes.Where(c => c.EmpresaId == empresaId).ToListAsync();

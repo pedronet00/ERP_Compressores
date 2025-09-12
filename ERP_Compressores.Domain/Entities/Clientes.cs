@@ -1,4 +1,6 @@
-﻿namespace ERP_Compressores.Domain.Entities;
+﻿using ERP_Compressores.Domain.ValueObjects;
+
+namespace ERP_Compressores.Domain.Entities;
 
 // Essa classe representa os clientes das Empresas. São usados nas Vendas, Visitas Técnicas e Orçamentos.
 
