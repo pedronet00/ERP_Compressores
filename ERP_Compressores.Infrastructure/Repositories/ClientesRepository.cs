@@ -41,6 +41,14 @@ public class ClientesRepository : IClientesRepository
         return await _context.Clientes.CountAsync(c => c.EmpresaId == empresaId);
     }
 
+    public async Task<int> CountClientesUltimoMesAsync(int empresaId)
+    {
+        var ultimoMes = DateTime.UtcNow.AddMonths(-1);
+
+        return await _context.Clientes.Where(c => c.CreatedAt >= ultimoMes && c.EmpresaId == empresaId)
+            .CountAsync();
+    }
+
     public async Task<bool> DeactivateCliente(int empresaId, Clientes cliente)
     {
         cliente.Status = false;
@@ -86,6 +94,26 @@ public class ClientesRepository : IClientesRepository
 
         return cliente;
     }
+
+    public async Task<Clientes?> GetClienteQueMaisComprouAsync(int empresaId)
+    {
+        var seisMesesAtras = DateTime.UtcNow.AddMonths(-6);
+
+        var cliente = await _context.Vendas
+            .Where(v => v.EmpresaId == empresaId && v.DataVenda >= seisMesesAtras)
+            .GroupBy(v => v.Cliente)
+            .Select(g => new
+            {
+                Cliente = g.Key,
+                TotalCompras = g.Count()
+            })
+            .OrderByDescending(g => g.TotalCompras)
+            .Select(g => g.Cliente)
+            .FirstOrDefaultAsync();
+
+        return cliente;
+    }
+
 
     public async Task<Clientes> UpdateClienteAsync(int empresaId, Clientes cliente)
     {

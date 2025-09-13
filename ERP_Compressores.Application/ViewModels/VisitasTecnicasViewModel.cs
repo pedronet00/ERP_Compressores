@@ -12,6 +12,7 @@ public class VisitasTecnicasViewModel
 {
     public int Id { get; set; }
     public Guid Guid { get; set; }
+    public string NomeCliente { get; set; }
     public int ClienteId { get; set; }
     public DateTime DataVisita { get; set; }
     public string Descricao { get; set; }

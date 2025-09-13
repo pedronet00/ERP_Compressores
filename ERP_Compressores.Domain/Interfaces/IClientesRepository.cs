@@ -25,6 +25,9 @@ public interface IClientesRepository
 
     Task<int> CountClientes(int empresaId);
 
+    Task<int> CountClientesUltimoMesAsync(int empresaId);
+    Task<Clientes?> GetClienteQueMaisComprouAsync(int empresaId);
+
     // Validações
     Task<bool> ExistsByEmailAsync(int empresaId, string email);
     Task<bool> ExistsByCpfAsync(int empresaId, string cpf);

@@ -20,5 +20,7 @@ public interface IClientesService
 
     Task<DomainNotificationsResult<ClienteViewModel>> ActivateCliente(int id);
 
+    Task<DomainNotificationsResult<ClientesRelatorioViewModel>> GerarRelatorioAsync();
+
     Task<int> CountClientes();
 }

@@ -56,7 +56,11 @@ public class VisitasTecnicasRepository : IVisitasTecnicasRepository
 
     public async Task<IEnumerable<VisitasTecnicas>> GetAlVisitasAsync(int empresaId)
     {
-        var visitas = await _context.VisitasTecnicas.Where(c => c.EmpresaId == empresaId).AsNoTracking(). ToListAsync();
+        var visitas = await _context.VisitasTecnicas
+            .Where(c => c.EmpresaId == empresaId)
+            .Include(v => v.Cliente)
+            .AsNoTracking()
+            .ToListAsync();
 
         return visitas;
     }

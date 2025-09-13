@@ -24,7 +24,9 @@ public class DomainToDTOMappingProfile : Profile
 
         CreateMap<VisitasTecnicas, VisitasTecnicasDTO>().ReverseMap();
         CreateMap<VisitasTecnicasDTO, VisitasTecnicas>().ForMember(dest => dest.Guid, opt => opt.Ignore());
-        CreateMap<VisitasTecnicas, VisitasTecnicasViewModel>().ReverseMap();
+        CreateMap<VisitasTecnicas, VisitasTecnicasViewModel>()
+            .ForMember(dest => dest.NomeCliente, opt => opt.MapFrom(src => src.Cliente.Nome))
+            .ReverseMap();
 
         CreateMap<CategoriaProduto, CategoriaProdutoDTO>().ReverseMap();
         CreateMap<CategoriaProdutoDTO, CategoriaProduto>().ForMember(dest => dest.Guid, opt => opt.Ignore());

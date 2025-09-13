@@ -146,6 +146,29 @@ public class ClientesService : IClientesService
         return result;
     }
 
+    public async Task<DomainNotificationsResult<ClientesRelatorioViewModel>> GerarRelatorioAsync()
+    {
+        var empresaId = _userContext.GetEmpresaId();
+        var result = new DomainNotificationsResult<ClientesRelatorioViewModel>();
+
+        var quantidadeTotal = await _repo.CountClientes(empresaId);
+        var clientes = await _repo.GetAllClientesAsync(empresaId);
+        var quantidadeUltimoMes = await _repo.CountClientesUltimoMesAsync(empresaId);
+        var clienteMaisComprou = await _repo.GetClienteQueMaisComprouAsync(empresaId);
+
+        var viewModel = new ClientesRelatorioViewModel
+        {
+            QuantidadeClientes = quantidadeTotal,
+            Clientes = _mapper.Map<IEnumerable<ClienteViewModel>>(clientes),
+            QuantidadeClientesUltimoMes = quantidadeUltimoMes,
+            ClienteQueMaisComprou = _mapper.Map<ClienteViewModel?>(clienteMaisComprou)
+        };
+
+        result.Result = viewModel;
+
+        return result;
+    }
+
     public async Task<IEnumerable<ClienteViewModel>> GetAllClientesAsync()
     {
         var empresaId = _userContext.GetEmpresaId();

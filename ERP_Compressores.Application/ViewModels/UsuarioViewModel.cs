@@ -10,7 +10,7 @@ public class UsuarioViewModel
 {
     public int Id { get; set; }
     public Guid Guid { get; set; }
-
+    public string? Email { get; set; }
     public string? UserName { get; set; }
     public int EmpresaId { get; set; }
     public string? Cpf { get; set; }

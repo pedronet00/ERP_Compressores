@@ -103,4 +103,11 @@ public class ClientesController : ControllerBase
         return Ok(count);
     }
 
+    [HttpGet("relatorio")]
+    [Authorize]
+    public async Task<IActionResult> GerarRelatorio()
+    {
+        var relatorio = await _service.GerarRelatorioAsync();
+        return Ok(relatorio);
+    }
 }
