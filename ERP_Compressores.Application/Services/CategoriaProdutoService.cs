@@ -3,6 +3,7 @@ using ERP_Compressores.Application.DTOs;
 using ERP_Compressores.Application.Interfaces;
 using ERP_Compressores.Application.ViewModels;
 using ERP_Compressores.Domain.Interfaces;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +17,15 @@ public class CategoriaProdutoService : ICategoriaProdutoService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ICategoriaProdutoRepository _repo;
+    private readonly IMemoryCache _cache;
+    private const string CacheKey = "CATEGORIA_PRODUTO";
 
-    public CategoriaProdutoService(IUnitOfWork unitOfWork, IMapper mapper, ICategoriaProdutoRepository repo)
+    public CategoriaProdutoService(IUnitOfWork unitOfWork, IMapper mapper, ICategoriaProdutoRepository repo, IMemoryCache cache)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _repo = repo;
+        _cache = cache;
     }
 
     public async Task<CategoriaProdutoViewModel> ActivateCategoria(int id)
@@ -84,10 +88,32 @@ public class CategoriaProdutoService : ICategoriaProdutoService
 
     public async Task<IEnumerable<CategoriaProdutoViewModel>> GetAllCategoriasAsync()
     {
-        var categorias = await _repo.GetAllCategoriasAsync();
+        if (!_cache.TryGetValue(CacheKey, out IEnumerable<CategoriaProdutoViewModel> categorias))
+        {
+            var entidades = await _repo.GetAllCategoriasAsync();
 
-        return _mapper.Map<IEnumerable<CategoriaProdutoViewModel>>(categorias);
+            if (entidades is not null && entidades.Any())
+            {
+                categorias = _mapper.Map<IEnumerable<CategoriaProdutoViewModel>>(entidades);
+
+                var cacheOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30),
+                    SlidingExpiration = TimeSpan.FromSeconds(15),
+                    Priority = CacheItemPriority.High
+                };
+
+                _cache.Set(CacheKey, categorias, cacheOptions);
+            }
+            else
+            {
+                return Enumerable.Empty<CategoriaProdutoViewModel>();
+            }
+        }
+
+        return categorias;
     }
+
 
     public async Task<CategoriaProdutoViewModel> GetCategoriaByIdAsync(int id)
     {

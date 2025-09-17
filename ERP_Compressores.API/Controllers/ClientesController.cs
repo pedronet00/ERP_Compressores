@@ -1,4 +1,5 @@
-﻿using ERP_Compressores.Application.DTOs;
+﻿using Asp.Versioning;
+using ERP_Compressores.Application.DTOs;
 using ERP_Compressores.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -6,8 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ERP_Compressores.API.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
+[ApiVersion("1.0")]
 public class ClientesController : ControllerBase
 {
     private readonly IClientesService _service;

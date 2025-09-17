@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using ERP_Compressores.Crosscutting.IoC;
 using ERP_Compressores.Domain.Entities;
 using ERP_Compressores.Infrastructure.Context;
@@ -15,6 +16,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddInfrastructure();
 
+builder.Services.AddApiVersioning(o =>
+{
+    o.DefaultApiVersion = new ApiVersion(1, 0);
+    o.AssumeDefaultVersionWhenUnspecified = true;
+    o.ReportApiVersions = true;
+    o.ApiVersionReader = new UrlSegmentApiVersionReader();
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
 
 builder.Services.AddHttpContextAccessor();
 
@@ -22,10 +34,10 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // ou porta do seu front-end
+        policy.WithOrigins("http://localhost:5173") 
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials(); // se usar cookies/autenticação baseada em sessão
+              .AllowCredentials(); 
     });
 });
 
@@ -38,6 +50,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 }); ;
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

@@ -3,6 +3,7 @@ using ERP_Compressores.Application.DTOs;
 using ERP_Compressores.Application.Interfaces;
 using ERP_Compressores.Application.ViewModels;
 using ERP_Compressores.Domain.Interfaces;
+using ERP_Compressores.Domain.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,25 +27,36 @@ public class FornecedoresService : IFornecedoresService
         _userContext = userContext;
     }
 
-    public async Task<FornecedorViewModel> ActivateFornecedor(int id)
+    public async Task<DomainNotificationsResult<FornecedorViewModel>> ActivateFornecedor(int id)
     {
         var empresaId = _userContext.GetEmpresaId();
         var fornecedor = await _repo.GetFornecedorByIdAsync(empresaId, id);
+        var result = new DomainNotificationsResult<FornecedorViewModel>();
 
         if (fornecedor is null || fornecedor.Status == true)
-            throw new ArgumentNullException("Fornecedor não encontrado ou já ativo.");
+            result.Notifications.Add("Fornecedor não encontrado ou já ativo.");
+
+        if(result.Notifications.Any())
+            return result;
 
         await _repo.ActivateFornecedor(empresaId, fornecedor);
 
         await _uow.Commit();
 
-        return _mapper.Map<FornecedorViewModel>(fornecedor);
+        result.Result = _mapper.Map<FornecedorViewModel>(fornecedor);
+
+        return result;
     }
 
-    public async Task<FornecedorViewModel> AddFornecedorAsync(FornecedorDTO fornecedor)
+    public async Task<DomainNotificationsResult<FornecedorViewModel>> AddFornecedorAsync(FornecedorDTO fornecedor)
     {
+        var result = new DomainNotificationsResult<FornecedorViewModel>();
+
         if (fornecedor is null)
-            throw new ArgumentNullException("Fornecedor não pode ser nulo");
+            result.Notifications.Add("Dados do fornecedor não podem ser nulos.");
+
+        if(result.Notifications.Any())
+            return result;
 
         var fornecedorEntity = _mapper.Map<Domain.Entities.Fornecedores>(fornecedor);
 
@@ -52,37 +64,51 @@ public class FornecedoresService : IFornecedoresService
 
         await _uow.Commit();
 
-        return _mapper.Map<FornecedorViewModel>(newFornecedor);
+        result.Result = _mapper.Map<FornecedorViewModel>(newFornecedor);
+
+        return result;
     }
 
-    public async Task<FornecedorViewModel> DeactivateFornecedor(int id)
+    public async Task<DomainNotificationsResult<FornecedorViewModel>> DeactivateFornecedor(int id)
     {
+        var result = new DomainNotificationsResult<FornecedorViewModel>();
         var empresaId = _userContext.GetEmpresaId();
         var fornecedor = await _repo.GetFornecedorByIdAsync(empresaId, id);
 
         if (fornecedor is null || fornecedor.Status == false)
-            throw new ArgumentNullException("Fornecedor não encontrado ou já inativo.");
+            result.Notifications.Add("Fornecedor não encontrado ou já inativo.");
+
+        if(result.Notifications.Any())
+            return result;
 
         await _repo.DeactivateFornecedor(empresaId, fornecedor);
 
         await _uow.Commit();
 
-        return _mapper.Map<FornecedorViewModel>(fornecedor);
+        result.Result = _mapper.Map<FornecedorViewModel>(fornecedor);
+
+        return result;
     }
 
-    public async Task<bool> DeleteFornecedorAsync(int id)
+    public async Task<DomainNotificationsResult<bool>> DeleteFornecedorAsync(int id)
     {
+        var result = new DomainNotificationsResult<bool>();
         var empresaId = _userContext.GetEmpresaId();
         var fornecedor = await _repo.GetFornecedorByIdAsync(empresaId, id);
 
         if (fornecedor is null)
-            throw new ArgumentNullException("Fornecedor não encontrado");
+            result.Notifications.Add("Fornecedor não encontrado.");
+
+        if(result.Notifications.Any())
+            return result;
 
         await _repo.DeleteFornecedorAsync(empresaId, id);
 
         await _uow.Commit();
 
-        return true;
+        result.Result =  true;
+
+        return result;
     }
 
     public async Task<IEnumerable<FornecedorViewModel>> GetAllFornecedoresAsync()
@@ -93,24 +119,31 @@ public class FornecedoresService : IFornecedoresService
         return _mapper.Map<IEnumerable<FornecedorViewModel>>(fornecedores);
     }
 
-    public async Task<FornecedorViewModel> GetFornecedorByIdAsync(int id)
+    public async Task<DomainNotificationsResult<FornecedorViewModel>> GetFornecedorByIdAsync(int id)
     {
+        var result = new DomainNotificationsResult<FornecedorViewModel>();
         var empresaId = _userContext.GetEmpresaId();
         var fornecedor = await _repo.GetFornecedorByIdAsync(empresaId, id);
 
         if (fornecedor is null)
-            throw new ArgumentNullException("Fornecedor não encontrado");
+            result.Notifications.Add("Fornecedor não encontrado.");
 
-        return _mapper.Map<FornecedorViewModel>(fornecedor);
+        result.Result = _mapper.Map<FornecedorViewModel>(fornecedor);
+
+        return result;
     }
 
-    public async Task<FornecedorViewModel> UpdateFornecedorAsync(FornecedorDTO fornecedor)
+    public async Task<DomainNotificationsResult<FornecedorViewModel>> UpdateFornecedorAsync(FornecedorDTO fornecedor)
     {
+        var result = new DomainNotificationsResult<FornecedorViewModel>();
         var empresaId = _userContext.GetEmpresaId();
         var fornecedorEntity = await _repo.GetFornecedorByIdAsync(empresaId, fornecedor.Id);
 
         if (fornecedorEntity is null)
-            throw new ArgumentNullException("Fornecedor não encontrado");
+            result.Notifications.Add("Fornecedor não encontrado.");
+
+        if(result.Notifications.Any())
+            return result;
 
         _mapper.Map(fornecedor, fornecedorEntity);
 
@@ -118,6 +151,8 @@ public class FornecedoresService : IFornecedoresService
 
         await _uow.Commit();
 
-        return _mapper.Map<FornecedorViewModel>(updatedFornecedor);
+        result.Result = _mapper.Map<FornecedorViewModel>(updatedFornecedor);
+
+        return result;
     }
 }

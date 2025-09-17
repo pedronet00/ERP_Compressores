@@ -42,7 +42,7 @@ public class FornecedoresController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         var newFornecedor = await _service.AddFornecedorAsync(fornecedor);
-        return CreatedAtAction(nameof(GetFornecedorById), new { id = newFornecedor.Id }, newFornecedor);
+        return Ok(newFornecedor);
     }
 
     [HttpPut("{id}")]
@@ -62,8 +62,6 @@ public class FornecedoresController : ControllerBase
     public async Task<IActionResult> DeleteFornecedor(int id)
     {
         var result = await _service.DeleteFornecedorAsync(id);
-        if (!result)
-            return NotFound();
         return NoContent();
     }
 

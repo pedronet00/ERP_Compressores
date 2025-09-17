@@ -39,6 +39,9 @@ public static class DependencyInjection
 
         //AutoMapper
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        
+        // Cache
+        services.AddMemoryCache();
 
         // Token
         services.AddScoped<ITokenService, TokenService>();
